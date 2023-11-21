@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Review Social</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .app {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            width: 100%;
+            max-width: 600px;
+            overflow-y: scroll;
+            height: 80vh;
+        }
+        #camera {
+            display: none;
+        }
+        #canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <h1 class="title">Review Social</h1>
+        <div id="post">
+            <!-- Post will be added here -->
+        </div>
+        <form id="reviewForm">
+            <div class="field">
+                <label class="label">Review</label>
+                <div class="control">
+                    <textarea class="textarea" id="review" placeholder="Write your review here"></textarea>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Picture</label>
+                <div class="control">
+                    <button class="button" id="openCamera">Open Camera</button>
+                    <video id="camera" width="400" height="300"></video>
+                    <canvas id="canvas" width="400" height="300"></canvas>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Grade</label>
+                <div class="control">
+                    <div class="select">
+                        <select id="grade">
+                            <option value="">Select grade</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <button class="button is-link" type="submit">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        // Fetch a random picture from Wikipedia and use it as a post
+        fetch("https://en.wikipedia.org/wiki/Special:Random/File")
+            .then(response => response.text())
+            .then(data => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data, "text/html");
+                const img = doc.querySelector(".fullImageLink img");
+                if (img) {
+                    const post = document.createElement("div");
+                    post.className = "box";
+                    post.innerHTML = "<img src=\"" + img.src + "\" width=\"400\">";
+                    document.getElementById("post").appendChild(post);
+                }
+            });
+
+        // Handle camera
+        const camera = document.getElementById("camera");
+        const canvas = document.getElementById("canvas");
+        const context = canvas.getContext("2d");
+        let picture;
+
+        document.getElementById("openCamera").addEventListener("click", function(event) {
+            event.preventDefault();
+            camera.style.display = "block";
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => camera.srcObject = stream);
+        });
+
+        camera.addEventListener("click", function() {
+            context.drawImage(camera, 0, 0, 400, 300);
+            picture = canvas.toDataURL("image/png");
+            camera.srcObject.getVideoTracks()[0].stop();
+            camera.style.display = "none";
+        });
+
+        // Handle form submission
+        document.getElementById("reviewForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const review = document.getElementById("review").value;
+            const grade = document.getElementById("grade").value;
+
+            if (review && picture && grade) {
+                // If all elements are submitted, display the next post
+                // For simplicity, we
+ll just fetch another random picture from Wikipedia
+                fetch("https://en.wikipedia.org/wiki/Special:Random/File")
+                    .then(response => response.text())
+                    .then(data => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(data, "text/html");
+                        const img = doc.querySelector(".fullImageLink img");
+                        if (img) {
+                            const post = document.getElementById("post");
+                            post.innerHTML = "";
+                            const newPost = document.createElement("div");
+                            newPost.className = "box";
+                            newPost.innerHTML = "<img src=\"" + img.src + "\" width=\"400\">";
+                            post.appendChild(newPost);
+                        }
+                    });
+
+                // Reset the form
+                document.getElementById("review").value = "";
+                document.getElementById("grade").value = "";
+                picture = null;
+            }
+        });
+    </script>
+</body>
+</html>
