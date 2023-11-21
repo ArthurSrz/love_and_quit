@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Progress Bar</title>
+    <style>
+        #progressBar {
+            width: 100%;
+            background-color: #f3f3f3;
+            border: 1px solid #bbb;
+        }
+        #progressBar div {
+            height: 30px;
+            background-color: #009578;
+            width: 0;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="progressBar"><div></div></div>
+    <div id="message"></div>
+    <script>
+        var progress = 0;
+        var increment = 0.1;
+        var accelerating = true;
+        var progressBar = document.getElementById("progressBar").firstElementChild;
+        var message = document.getElementById("message");
+        var interval = setInterval(function() {
+            progress += increment;
+            if (accelerating) {
+                increment *= 1.1;
+                if (increment >= 2.5) {
+                    accelerating = false;
+                    message.textContent = "Oops, bug incoming";
+                }
+            } else {
+                increment *= 0.9;
+                if (increment <= 0.1) {
+                    accelerating = true;
+                    message.textContent = "Problems solved";
+                }
+            }
+            progressBar.style.width = progress + "%";
+            if (progress >= 100) {
+                clearInterval(interval);
+                message.textContent = "Finished loading";
+            }
+        }, 600);
+    </script>
+</body>
+</html>
